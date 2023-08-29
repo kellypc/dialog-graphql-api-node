@@ -1,33 +1,31 @@
 require("dotenv").config();
 
 const mongoose = require("mongoose");
-const { ApolloServer } = require("apollo-server")
+const { ApolloServer } = require("@apollo/server");
+const { startStandaloneServer } = require("@apollo/server/standalone");
 
 const typeDefs = require("./typeDefs")
 const resolvers = require("./resolvers")
 
-// Database
-const db = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  pass: process.env.DB_PASS,
-  name: process.env.DB_NAME,
-};
-const dbUri = `mongodb+srv://${db.user}:${db.pass}@${db.host}/${db.name}?retryWrites=true&w=majority`;
+const MONGO_URI = "mongodb://localhost/user-dialog";
 
-const dbOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
+// Database connection
 mongoose
-  .connect(dbUri, dbOptions)
-  .then(() => console.log("Database connected"))
-  .catch((error) => console.log("Databased failed: ", error));
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log(`Db Connected`);
+  })
+  .catch(err => {
+    console.log(err.message);
+  });
 
-  //GraphQL
-const server = new ApolloServer ({ typeDefs, resolvers })
+const server = new ApolloServer({ typeDefs, resolvers });
 
-server
-    .listen()
-    .then(({ url }) => console.log(`Server ready at ${url}`))
-    .catch(error => console.log("Server failed: ", error))
+startStandaloneServer(server, {
+  listen: { port: 4000 },
+}).then(({ url }) => {
+  console.log(`Server ready at ${url}`);
+});

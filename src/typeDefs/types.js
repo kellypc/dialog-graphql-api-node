@@ -16,7 +16,7 @@ const types = gql `
   }
 
   type Friends {
-    id: ID!
+    id: ID
     index: String
     picture: String
     age: String
